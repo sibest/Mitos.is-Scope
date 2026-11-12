@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -63,6 +65,8 @@ public partial class App : Application
 
             if (firstRun)
                 _overlay.SetEditMode(true); // let the user place the panels the first time
+
+            StartItemsPackUpdates(tracker);
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -96,6 +100,31 @@ public partial class App : Application
 
         tracker.Attach(_sessions);
         _sessions.Start();
+    }
+
+    private readonly CancellationTokenSource _itemsCts = new();
+
+    /// <summary>
+    /// Item icons follow the game: the items pack is checked at startup and every 6 hours
+    /// (ItemsPackUpdater). A new pack reloads the icons in the Equipment panel right away.
+    /// </summary>
+    private void StartItemsPackUpdates(TrackerViewModel tracker)
+    {
+        var ct = _itemsCts.Token;
+        _ = Task.Run(async () =>
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                if (await ItemsPackUpdater.UpdateAsync(tracker.ReportItemsUpdate, ct).ConfigureAwait(false))
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        ItemSprites.Reload();
+                        tracker.RefreshItemIcons();
+                    });
+                try { await Task.Delay(TimeSpan.FromHours(6), ct).ConfigureAwait(false); }
+                catch (OperationCanceledException) { return; }
+            }
+        }, ct);
     }
 
     private void CreateTrayIcon(IClassicDesktopStyleApplicationLifetime desktop)
@@ -169,6 +198,7 @@ public partial class App : Application
     {
         if (_overlay is { IsEditMode: true })
             _overlay.SaveLayout();
+        _itemsCts.Cancel();
         _hotkeys?.Dispose();
         _focus?.Dispose();
         _matchState?.Dispose();

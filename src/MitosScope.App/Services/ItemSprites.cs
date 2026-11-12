@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -53,6 +54,15 @@ public static class ItemSprites
         return target;
     }
 
+    /// <summary>Drops the loaded atlas and the cached icons: the next <see cref="Get"/> reloads (after an items pack update).</summary>
+    public static void Reload()
+    {
+        Cache.Clear();
+        _atlas = null;
+        _image = null;
+        _loadFailed = false;
+    }
+
     private static bool EnsureLoaded()
     {
         if (_atlas is not null)
@@ -60,18 +70,33 @@ public static class ItemSprites
         if (_loadFailed)
             return false;
 
+        // the items pack downloaded from the game (ItemsPackUpdater) first, then the copy embedded in the exe
+        if (ItemsPackUpdater.HasCachedPack && TryLoad(
+                () => File.OpenRead(Path.Combine(ItemsPackUpdater.DirectoryPath, "items.xml")),
+                () => File.OpenRead(Path.Combine(ItemsPackUpdater.DirectoryPath, "items.png"))))
+            return true;
+
+        if (TryLoad(() => AssetLoader.Open(new Uri(AtlasBase + "items.xml")), () => AssetLoader.Open(new Uri(AtlasBase + "items.png"))))
+            return true;
+
+        _loadFailed = true;
+        return false;
+    }
+
+    private static bool TryLoad(Func<Stream> openXml, Func<Stream> openPng)
+    {
         try
         {
-            using (var xml = AssetLoader.Open(new Uri(AtlasBase + "items.xml")))
+            using (var xml = openXml())
                 _atlas = TextureAtlas.Load(xml);
-            using (var png = AssetLoader.Open(new Uri(AtlasBase + "items.png")))
+            using (var png = openPng())
                 _image = new Bitmap(png);
             return true;
         }
         catch (Exception ex)
         {
-            _loadFailed = true;
             _atlas = null;
+            _image = null;
             Trace.WriteLine($"[MitosScope] Failed to load the items atlas: {ex.Message}");
             return false;
         }

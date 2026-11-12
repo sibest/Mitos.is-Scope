@@ -50,6 +50,14 @@
             <TextBlock Classes="muted" Text="Log in. If already logged in, restart that instance." />
         </StackPanel>
 
+        <!-- Item icons download (new items pack from the game) -->
+        <StackPanel Spacing="3" IsVisible="{Binding Tracker.IsUpdatingItems}">
+            <TextBlock Classes="muted" Text="{Binding Tracker.ItemsUpdateText}" TextTrimming="CharacterEllipsis" />
+            <ProgressBar Minimum="0" Maximum="100" MinWidth="0" Height="4"
+                         Value="{Binding Tracker.ItemsUpdatePercent}"
+                         IsIndeterminate="{Binding Tracker.ItemsUpdateIndeterminate}" />
+        </StackPanel>
+
         <TextBlock Classes="muted" IsVisible="{Binding IsEditMode}"
                    Text="Edit mode: drag/resize the panels. Ctrl+Shift+E to lock." />
     </StackPanel>

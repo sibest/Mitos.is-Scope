@@ -17,6 +17,12 @@
     <AvaloniaResource Include="..\..\items.xml" Link="Assets\Atlas\items.xml" />
   </ItemGroup>
 
+  <!-- Built-in app key for release builds: Services\EmbeddedAppKey.Secret.cs is git-ignored and only
+       exists on the machine that builds the releases. Without it the key comes from API_KEY.txt. -->
+  <PropertyGroup Condition="Exists('Services\EmbeddedAppKey.Secret.cs')">
+    <DefineConstants>$(DefineConstants);EMBEDDED_APP_KEY</DefineConstants>
+  </PropertyGroup>
+
   <!-- App key: kept at the repo root (git-ignored) and copied next to the exe. -->
   <ItemGroup>
     <None Include="..\..\API_KEY.txt" Link="API_KEY.txt" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\..\API_KEY.txt')" />

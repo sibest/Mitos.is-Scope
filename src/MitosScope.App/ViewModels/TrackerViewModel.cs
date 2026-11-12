@@ -57,6 +57,36 @@ public partial class TrackerViewModel : ViewModelBase
     [RelayCommand]
     private void Select(SessionViewModel session) => Current = session;
 
+    // ---- item icons download (ItemsPackUpdater), shown as a loader in the panels ----
+
+    /// <summary>What the items pack download is doing; null when nothing is in progress.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsUpdatingItems))]
+    public partial string? ItemsUpdateText { get; set; }
+
+    /// <summary>0..100, or -1 while the size isn't known (indeterminate bar).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ItemsUpdateIndeterminate))]
+    public partial double ItemsUpdatePercent { get; set; } = -1;
+
+    public bool IsUpdatingItems => ItemsUpdateText is not null;
+    public bool ItemsUpdateIndeterminate => ItemsUpdatePercent < 0;
+
+    /// <summary>Called from any thread by ItemsPackUpdater.</summary>
+    public void ReportItemsUpdate(string? text, double fraction) =>
+        Dispatcher.UIThread.Post(() =>
+        {
+            ItemsUpdateText = text;
+            ItemsUpdatePercent = fraction < 0 ? -1 : fraction * 100;
+        });
+
+    /// <summary>New item icons (items pack updated): rebuild the equipment rows now instead of at the next poll.</summary>
+    public void RefreshItemIcons()
+    {
+        foreach (var session in Sessions)
+            session.Refresh(SessionChange.Inventory);
+    }
+
     private int? _focusedProcessId;
 
     /// <summary>A game client got focus: show the session served by that process (if connected yet).</summary>

@@ -37,6 +37,14 @@
         <TextBlock DockPanel.Dock="Top" Classes="muted" Text="No client connected"
                    IsVisible="{Binding !Tracker.HasCurrent}" />
 
+        <!-- New item icons downloading: the icons below update when it's done -->
+        <StackPanel DockPanel.Dock="Top" Spacing="3" Margin="0,0,0,6" IsVisible="{Binding Tracker.IsUpdatingItems}">
+            <TextBlock Classes="muted" Text="{Binding Tracker.ItemsUpdateText}" TextTrimming="CharacterEllipsis" />
+            <ProgressBar Minimum="0" Maximum="100" MinWidth="0" Height="4"
+                         Value="{Binding Tracker.ItemsUpdatePercent}"
+                         IsIndeterminate="{Binding Tracker.ItemsUpdateIndeterminate}" />
+        </StackPanel>
+
         <ScrollViewer VerticalScrollBarVisibility="Hidden">
             <ItemsControl ItemsSource="{Binding Tracker.Current.EquippedItems}"
                           Container.Name="equipList" Container.Sizing="Width">

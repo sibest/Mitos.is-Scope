@@ -1,5 +1,7 @@
 # App key: never commit (ADDON_API.md §1)
 API_KEY.txt
+# Built-in (obfuscated) app key for release builds: never commit
+*.Secret.cs
 
 # Private reference docs (addon API spec and bug report): kept locally only
 ADDON_API*.md
