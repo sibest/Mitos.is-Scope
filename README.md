@@ -4,6 +4,8 @@ An overlay for the **Mitos.is** desktop client that shows your match, account, q
 
 MitosScope only reads data through the game client's local addon API. It never changes anything in the game.
 
+Created by **Chains** ([SwapChains](https://github.com/SwapChains)).
+
 ## Features
 
 - **Live match data** (refreshed every second): mass and peak mass, cells, leaderboard position, match XP, players and food eaten, plus how long you've been alive.
@@ -105,3 +107,7 @@ To add a panel, create its `XxxPanelViewModel` and `Views/Panels/XxxPanelView.ax
 ## Built with
 
 [.NET 10](https://dotnet.microsoft.com/), [Avalonia UI](https://avaloniaui.net/), [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) and [SharpHook](https://github.com/TolikPylypchuk/SharpHook) (global hotkeys).
+
+## Credits
+
+MitosScope was designed and written by **Chains** ([SwapChains](https://github.com/SwapChains)). This repository is a fork of the original project, maintained for the official Mitos.is releases.
