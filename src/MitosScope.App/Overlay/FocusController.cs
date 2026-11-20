@@ -33,6 +33,12 @@ public sealed class FocusController : IDisposable
         _overlay = overlay;
     }
 
+    /// <summary>
+    /// A game client has the focus right now (the shop hotkeys only buy then). Always true when the
+    /// foreground can't be watched (no focus info: the overlay is always visible too).
+    /// </summary>
+    public bool IsGameFocused => !ForegroundWatcher.IsSupported || _gameFocused;
+
     public void Start()
     {
         if (!ForegroundWatcher.IsSupported || _sessions is null)

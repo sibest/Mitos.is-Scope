@@ -19,6 +19,7 @@ Created by **Chains** ([SwapChains](https://github.com/SwapChains)).
 - **Item attributes**: shop and inventory show what every item gives (speed, resilience…) and its description, and you can search items by name, attribute or description.
 - **Build tool**: pick the attributes you want, in order of priority (1°, 2°, 3°…). The shop finds the best 3 items to equip for all of them together (one per category, like the game's slots), counting what you already own as free, and lists the builds by your priority. It can stay within your level and your coins.
 - **Item sets**: in the inventory, save named sets of up to 3 items and swap to one in a click. Each set shows what it gives in total. Sets are kept on your PC for each account.
+- **Shop hotkeys**: bind up to 5 keys (any key, with Ctrl/Shift/Alt if you like) to potions and powers from the shop. Each press buys one pack for the focused game window, even in a match.
 
 ## Panels
 
@@ -34,6 +35,7 @@ Created by **Chains** ([SwapChains](https://github.com/SwapChains)).
 | **Shop** | Click to open the shop window: categories, items with attributes, description and price, search in every category, buy (several packs at once for consumables), and the **Build tool** | When opened |
 | **Inventory** | Click to open the inventory window: every owned item by category with its attributes, search, equip / unequip, and the **Item sets** tab (create, rename, edit, reorder, delete, equip in one click). Equipment can't change while alive in a match. | When opened |
 | **Gem Training** | The 3 training slots (gem, level, Gem EXP, time to next level) and the bonus; click to open the window: put gems in slots or remove them | Every 15 s |
+| **Shop Hotkeys** | The 5 hotkey slots (item, key and uses left when equipped). The square glows green or red after a purchase. Click ⚙ (menu only) to open the window: pick a slot, click an item from the shop's Items category, then **Set key** and press the key. Each press buys one pack while a game window is focused, in a match too. The key also reaches the game. | Live |
 
 ## Requirements
 
@@ -82,7 +84,7 @@ Right-click the tray icon (a left-click toggles edit mode):
 
 ### Settings
 
-The layout and panel options are saved in `%APPDATA%\MitosScope\settings.json`, along with your item sets (`itemSets`, per account), the build tool choices and `gamePath`, the game executable used by **Open Instance**. You can also set `gameProcessNames` there, the executable names of the game client (default `Mitosis`), which MitosScope watches to detect when the game starts.
+The layout and panel options are saved in `%APPDATA%\MitosScope\settings.json`, along with your item sets (`itemSets`, per account), the build tool choices, the shop hotkeys (`shopHotkeys`) and `gamePath`, the game executable used by **Open Instance**. You can also set `gameProcessNames` there, the executable names of the game client (default `Mitosis`), which MitosScope watches to detect when the game starts.
 
 ## Troubleshooting
 

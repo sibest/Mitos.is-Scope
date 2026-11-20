@@ -1,0 +1,93 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MitosScope.App.ViewModels"
+             xmlns:panels="using:MitosScope.App.ViewModels.Panels"
+             x:Class="MitosScope.App.Views.Panels.ShopHotkeysPanelView"
+             x:DataType="panels:ShopHotkeysPanelViewModel">
+    <UserControl.Styles>
+        <Style Selector="Border.hotkey">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Background" Value="#20FFFFFF" />
+            <Setter Property="BorderBrush" Value="#30FFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.15" />
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.hotkey.empty">
+            <Setter Property="Opacity" Value="0.5" />
+        </Style>
+        <Style Selector="Border.hotkey.buying">
+            <Setter Property="BorderBrush" Value="#A0FFFFFF" />
+        </Style>
+        <Style Selector="Border.hotkey.bought">
+            <Setter Property="Background" Value="#7040C060" />
+            <Setter Property="BorderBrush" Value="#FF40C060" />
+        </Style>
+        <Style Selector="Border.hotkey.failed">
+            <Setter Property="Background" Value="#70FF4D4D" />
+            <Setter Property="BorderBrush" Value="#FFFF4D4D" />
+        </Style>
+        <Style Selector="TextBlock.status">
+            <Setter Property="Foreground" Value="#FF8CE06A" />
+        </Style>
+        <Style Selector="TextBlock.status.failed">
+            <Setter Property="Foreground" Value="#FFFF7070" />
+        </Style>
+    </UserControl.Styles>
+
+    <!-- Click-through: only the ⚙ button takes a click (overlay button), to open the hotkeys window. -->
+    <!-- Stacked from the top (title, squares, status) so the keys sit right under the squares without a gap. -->
+    <StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,6">
+            <TextBlock Classes="title" Text="Shop Hotkeys" VerticalAlignment="Center" />
+            <Button Classes="overlayButton" Margin="0" VerticalAlignment="Center"
+                    IsVisible="{Binding Hotkeys.CanConfigure}" Command="{Binding Hotkeys.OpenSettingsCommand}"
+                    ToolTip.Tip="Bind items and keys">
+                <TextBlock Text="⚙" FontSize="13" />
+            </Button>
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding Hotkeys.Slots}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="5" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ShopHotkeySlotViewModel">
+                    <StackPanel Margin="2,0" Spacing="2">
+                        <Border Classes="hotkey" Classes.empty="{Binding !HasItem}" Classes.buying="{Binding IsBuying}"
+                                Classes.bought="{Binding IsBought}" Classes.failed="{Binding IsFailed}">
+                            <Grid>
+                                <Image Source="{Binding Sprite}" Stretch="Uniform" Margin="3" IsVisible="{Binding HasItem}" />
+                                <TextBlock Text="+" FontSize="16" Foreground="#80FFFFFF"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !HasItem}" />
+                                <!-- uses left, when the item is equipped -->
+                                <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,1,1"
+                                        Padding="2,0" CornerRadius="3" Background="#B0000000" IsVisible="{Binding HasUses}">
+                                    <TextBlock FontSize="9" FontWeight="SemiBold" Text="{Binding UsesText}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                        <TextBlock FontSize="10" FontWeight="SemiBold" Foreground="#FFFFD060" Text="{Binding KeyText}"
+                                   TextAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Last purchase (3 s), else the hint; one line, so the panel keeps its height. -->
+        <Panel Margin="0,4,0,0">
+            <TextBlock Classes="status" Classes.failed="{Binding Hotkeys.LastStatusFailed}" FontSize="11"
+                       Text="{Binding Hotkeys.LastStatus}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"
+                       IsVisible="{Binding Hotkeys.HasLastStatus}" />
+            <TextBlock Classes="muted" FontSize="11" Text="{Binding Hotkeys.PanelHint}" TextTrimming="CharacterEllipsis"
+                       TextWrapping="NoWrap" IsVisible="{Binding !Hotkeys.HasLastStatus}" />
+        </Panel>
+    </StackPanel>
+</UserControl>

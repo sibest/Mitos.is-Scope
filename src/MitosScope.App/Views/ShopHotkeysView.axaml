@@ -1,0 +1,141 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MitosScope.App.ViewModels"
+             x:Class="MitosScope.App.Views.ShopHotkeysView"
+             x:DataType="vm:ShopHotkeysViewModel">
+    <UserControl.Styles>
+        <!-- The 5 slots: a click selects the slot (the next item clicked goes there). -->
+        <Style Selector="Button.slot">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
+        <Style Selector="Button.slot Border.slotFrame">
+            <Setter Property="BorderBrush" Value="#30FFFFFF" />
+        </Style>
+        <Style Selector="Button.slot.selected Border.slotFrame">
+            <Setter Property="BorderBrush" Value="#FFFFD060" />
+            <Setter Property="Background" Value="#20FFD060" />
+        </Style>
+        <Style Selector="Button.slot.capturing Border.slotFrame">
+            <Setter Property="BorderBrush" Value="#FF60B0FF" />
+        </Style>
+        <!-- Item tiles: a click binds the item to the selected slot. -->
+        <Style Selector="Button.item">
+            <Setter Property="Width" Value="134" />
+            <Setter Property="Margin" Value="0,0,8,8" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="Button.item.locked">
+            <Setter Property="Opacity" Value="0.5" />
+        </Style>
+    </UserControl.Styles>
+
+    <DockPanel>
+        <!-- Header: title, coins, close -->
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" Margin="0,0,0,6">
+            <TextBlock Classes="title" FontSize="18" VerticalAlignment="Center" Text="Shop Hotkeys" />
+            <TextBlock Grid.Column="1" FontSize="12" Foreground="#FFFFD060" VerticalAlignment="Center" Text="{Binding CoinsText}" />
+            <Button Grid.Column="2" Classes="flat danger" Width="24" Height="24" Padding="0"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                    ToolTip.Tip="Close" Command="{Binding CloseCommand}">
+                <TextBlock Text="✕" FontSize="12" />
+            </Button>
+        </Grid>
+        <TextBlock DockPanel.Dock="Top" Classes="muted" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"
+                   Text="Pick a slot, click an item to bind it, then Set key and press any key (Ctrl/Shift/Alt allowed). While a game window has the focus, the key buys one pack of the item, in a match too. The key still reaches the game." />
+
+        <!-- The 5 slots -->
+        <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Slots}" Margin="-4,0,-4,10">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="5" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ShopHotkeySlotViewModel">
+                    <StackPanel Margin="4,0" Spacing="4">
+                        <Button Classes="flat slot" Classes.selected="{Binding IsSelected}" Classes.capturing="{Binding IsCapturing}"
+                                Command="{Binding $parent[UserControl].((vm:ShopHotkeysViewModel)DataContext).SelectSlotCommand}"
+                                CommandParameter="{Binding}">
+                            <Border Classes="slotFrame" Padding="8" CornerRadius="6" BorderThickness="1">
+                                <StackPanel Spacing="3">
+                                    <Grid>
+                                        <TextBlock FontSize="11" FontWeight="SemiBold" Foreground="#90FFFFFF" Text="{Binding Number}" />
+                                        <Border Width="44" Height="44" CornerRadius="4" Background="#20FFFFFF" HorizontalAlignment="Center">
+                                            <Panel>
+                                                <Image Source="{Binding Sprite}" Stretch="Uniform" Margin="3" IsVisible="{Binding HasItem}" />
+                                                <TextBlock Text="+" FontSize="18" Foreground="#60FFFFFF"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !HasItem}" />
+                                            </Panel>
+                                        </Border>
+                                    </Grid>
+                                    <TextBlock FontSize="12" FontWeight="SemiBold" TextAlignment="Center" TextTrimming="CharacterEllipsis"
+                                               Text="{Binding ItemName}" IsVisible="{Binding HasItem}" />
+                                    <TextBlock FontSize="11" Foreground="#A0FFFFFF" TextAlignment="Center" TextTrimming="CharacterEllipsis"
+                                               Text="{Binding PriceText}" />
+                                    <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="#FFFFD060" TextAlignment="Center"
+                                               TextWrapping="Wrap" Text="{Binding KeyText}" />
+                                </StackPanel>
+                            </Border>
+                        </Button>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4">
+                            <Button Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                    Content="Set key"
+                                    Command="{Binding $parent[UserControl].((vm:ShopHotkeysViewModel)DataContext).SetKeyCommand}"
+                                    CommandParameter="{Binding}" />
+                            <Button Grid.Column="1" Classes="flat danger small" Content="Clear" ToolTip.Tip="Remove the item and the key"
+                                    Command="{Binding $parent[UserControl].((vm:ShopHotkeysViewModel)DataContext).ClearSlotCommand}"
+                                    CommandParameter="{Binding}" />
+                        </Grid>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Items of shop category 6 -->
+        <TextBlock DockPanel.Dock="Top" Classes="section" Text="ITEMS (click one to bind it to the selected slot)" Margin="0,0,0,6" />
+        <ProgressBar DockPanel.Dock="Top" IsIndeterminate="True" Margin="0,0,0,8" IsVisible="{Binding IsLoading}" />
+        <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,8" IsVisible="{Binding HasError}">
+            <TextBlock Classes="error" Text="{Binding ErrorText}" />
+            <Button Classes="flat" Content="Try again" Padding="10,3" FontSize="12" Command="{Binding RetryCommand}" />
+        </StackPanel>
+        <TextBlock DockPanel.Dock="Top" Classes="muted" Text="{Binding StateText}" IsVisible="{Binding HasStateText}" />
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Items}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ShopItemViewModel">
+                        <Button Classes="flat item" Classes.locked="{Binding !IsBuyable}"
+                                ToolTip.Tip="{Binding Description}"
+                                Command="{Binding $parent[UserControl].((vm:ShopHotkeysViewModel)DataContext).AssignItemCommand}"
+                                CommandParameter="{Binding}">
+                            <Border Padding="8" CornerRadius="6" BorderBrush="#30FFFFFF" BorderThickness="1">
+                                <StackPanel Spacing="3">
+                                    <Border Width="48" Height="48" CornerRadius="4" Background="#20FFFFFF" HorizontalAlignment="Center">
+                                        <Image Source="{Binding Sprite}" Stretch="Uniform" Margin="3" />
+                                    </Border>
+                                    <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding Name}"
+                                               TextAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock FontSize="12" Foreground="#FFFFD060" Text="{Binding PriceText}" TextAlignment="Center" />
+                                    <TextBlock FontSize="11" Foreground="#A0FFFFFF" Text="{Binding NotBuyableText}"
+                                               TextAlignment="Center" TextTrimming="CharacterEllipsis" IsVisible="{Binding !IsBuyable}" />
+                                </StackPanel>
+                            </Border>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

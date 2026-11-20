@@ -341,7 +341,8 @@ public partial class ShopViewModel : PopupViewModel
             BuyStatus = null;
     }
 
-    private static string BuyErrorText(int status, string? error) => (status, error) switch
+    /// <summary>Also used by the shop hotkeys.</summary>
+    internal static string BuyErrorText(int status, string? error) => (status, error) switch
     {
         (0, "not_connected") => "Not connected",
         (0, _) => "Game not responding",

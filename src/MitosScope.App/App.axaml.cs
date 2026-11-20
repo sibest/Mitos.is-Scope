@@ -58,7 +58,7 @@ public partial class App : Application
             var popups = CreatePopups(tracker, _settings);
             _overlay = new OverlayManager(_settings, CreatePanels(tracker, popups));
             _overlay.ShowAll();
-            _overlay.AttachPopups([popups.Shop, popups.Inventory, popups.GemTraining]);
+            _overlay.AttachPopups([popups.Shop, popups.Inventory, popups.GemTraining, popups.ShopHotkeys]);
 
             _focus = new FocusController(_sessions, tracker, _overlay);
             _focus.Start();
@@ -68,6 +68,8 @@ public partial class App : Application
 
             _hotkeys = new HotkeyService();
             _hotkeys.ToggleEditModePressed += () => Dispatcher.UIThread.Post(() => _overlay.ToggleEditMode());
+            // Shop hotkeys: buy only while a game window has the focus (the key also reaches the game).
+            _hotkeys.KeyPressed += press => Dispatcher.UIThread.Post(() => popups.ShopHotkeys.OnKey(press, _focus?.IsGameFocused == true));
             _hotkeys.Start();
 
             CreateTrayIcon(desktop);
@@ -85,7 +87,8 @@ public partial class App : Application
     /// The popups (big cards in the middle of the screen, see PopupViewModel). Register new ones here,
     /// add them to the AttachPopups call above, and pass them to the panel that opens them.
     /// </summary>
-    private sealed record Popups(ShopViewModel Shop, InventoryViewModel Inventory, GemTrainingViewModel GemTraining);
+    private sealed record Popups(ShopViewModel Shop, InventoryViewModel Inventory, GemTrainingViewModel GemTraining,
+        ShopHotkeysViewModel ShopHotkeys);
 
     private static Popups CreatePopups(TrackerViewModel tracker, AppSettings settings)
     {
@@ -93,7 +96,8 @@ public partial class App : Application
         return new(
             Shop: new ShopViewModel(tracker, settings, sets),
             Inventory: new InventoryViewModel(tracker, settings, sets),
-            GemTraining: new GemTrainingViewModel(tracker));
+            GemTraining: new GemTrainingViewModel(tracker),
+            ShopHotkeys: new ShopHotkeysViewModel(tracker, settings));
     }
 
     /// <summary>Register new panels here.</summary>
@@ -109,6 +113,7 @@ public partial class App : Application
         new ShopPanelViewModel(tracker, popups.Shop),
         new InventoryPanelViewModel(tracker, popups.Inventory),
         new GemTrainingPanelViewModel(tracker, popups.GemTraining),
+        new ShopHotkeysPanelViewModel(tracker, popups.ShopHotkeys),
     ];
 
     private void StartSessions(TrackerViewModel tracker)

@@ -30,6 +30,28 @@ public sealed class AppSettings
     public bool BuildMyLevel { get; set; } = true;
     public bool BuildMyCoins { get; set; }
     public bool BuildUseOwned { get; set; } = true;
+
+    /// <summary>Shop hotkeys: the 5 keys that buy an item (shop category 6) with one press. Missing entries = empty slots.</summary>
+    public List<ShopHotkey> ShopHotkeys { get; set; } = [];
+}
+
+/// <summary>
+/// One shop hotkey slot. The key is a SharpHook key code name ("VcF1", "Vc1"…) plus modifiers.
+/// The item's name, sprite and price are a copy from the shop, so the panel can draw the slot
+/// without loading the shop; they're refreshed every time the hotkeys window loads the items.
+/// </summary>
+public sealed class ShopHotkey
+{
+    public string? Key { get; set; }
+    public bool Ctrl { get; set; }
+    public bool Shift { get; set; }
+    public bool Alt { get; set; }
+
+    public long? ItemId { get; set; }
+    public string? ItemName { get; set; }
+    public string? ItemSprite { get; set; }
+    public long ItemPrice { get; set; }
+    public long ItemPack { get; set; }
 }
 
 public sealed class PanelLayout

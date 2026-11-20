@@ -31,7 +31,7 @@ public abstract partial class PanelViewModel(TrackerViewModel tracker) : ViewMod
     //   MitosScope   Quests                           Battle Pass
     //   Match        Equipment                        All Time Stats
     //   Account                                       Shop | Inventory
-    //                                                 Gem Training
+    //   Shop Hotkeys                                  Gem Training
     //
     // Each column starts at a percentage of the window (its left or right edge, and its top);
     // panels are stacked inside the column with a few DIPs between them.
@@ -49,6 +49,7 @@ public abstract partial class PanelViewModel(TrackerViewModel tracker) : ViewMod
     protected const double StatusH = 80, MatchH = 190, AccountH = 120;
     protected const double QuestsH = 130, EquipmentH = 240;
     protected const double BattlePassH = 72, StatsH = 105, CardH = 48, GemsH = 115;
+    protected const double HotkeysH = 118;
 
     /// <summary>A panel in a left column: <paramref name="dy"/> DIPs below the column's top, <paramref name="dx"/> DIPs right of its left edge.</summary>
     protected static PanelLayout Left(double dy, double height, double dx = 0, double width = ColumnWidth, bool inMatch = true) =>
@@ -125,6 +126,20 @@ public sealed class GemTrainingPanelViewModel(TrackerViewModel tracker, GemTrain
     public override PanelLayout DefaultLayout => Right(BattlePassH + Gap + StatsH + Gap + CardH + Gap, GemsH, inMatch: false);
     public override bool IsInteractive => true;
     public override void OnClicked() => Gems.Toggle();
+}
+
+/// <summary>
+/// The 5 shop hotkey slots (item + key, see ShopHotkeysViewModel). Shown in the menu and in a match:
+/// it's click-through like the info panels, only its ⚙ button (an overlay button, hidden in a match)
+/// takes a click, to open the hotkeys window.
+/// </summary>
+public sealed class ShopHotkeysPanelViewModel(TrackerViewModel tracker, ShopHotkeysViewModel hotkeys) : PanelViewModel(tracker)
+{
+    public ShopHotkeysViewModel Hotkeys { get; } = hotkeys;
+    public override string Id => "shophotkeys";
+    public override string Title => "Shop Hotkeys";
+    // Left column, under Account.
+    public override PanelLayout DefaultLayout => Left(StatusH + Gap + MatchH + Gap + AccountH + Gap, HotkeysH);
 }
 
 public sealed class StatusPanelViewModel(TrackerViewModel tracker) : PanelViewModel(tracker)
